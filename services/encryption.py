@@ -14,46 +14,41 @@ KEY_LENGTH = 32
 SALT_LENGTH = 16
 
 
-def encrypt(password, plain_message):
+def encrypt(encryption_key, password):
     """
     Encrypts a message using AES-GCM and PBKDF2.
     Returns a base64-encoded byte string of: salt + iv + ciphertext.
     """
 
     # Generate randomness
-    salt = os.urandom(SALT_LENGTH)
     iv = os.urandom(IV_LENGTH)
-    key = get_secret_key(password, salt)
 
-    aesgcm = AESGCM(key)
-    ciphertext = aesgcm.encrypt(iv, plain_message.encode("utf-8"), None)
+    aesgcm = AESGCM(encryption_key)
+    ciphertext = aesgcm.encrypt(iv, password.encode("utf-8"), None)
 
     return {
-        "salt": base64.b64encode(salt).decode("utf-8"),
         "iv": base64.b64encode(iv).decode("utf-8"),
         "ciphertext": base64.b64encode(ciphertext).decode("utf-8"),
     }
 
 
-def decrypt(password, encoded_cipher):
+def decrypt(encryption_key, encoded_cipher):
     """
     Decrypts a base64-encoded AES-GCM cipher using the given password.
     """
 
     # Extract informatino from encoded cipher
-    salt = base64.b64decode(encoded_cipher["salt"])
     iv = base64.b64decode(encoded_cipher["iv"])
     ciphertext = base64.b64decode(encoded_cipher["ciphertext"])
 
     # Decrypt
-    key = get_secret_key(password, salt)
-    aesgcm = AESGCM(key)
+    aesgcm = AESGCM(encryption_key)
     decrypted = aesgcm.decrypt(iv, ciphertext, None)
 
     return decrypted.decode("utf-8")
 
 
-def get_secret_key(password, salt):
+def get_secret_key(password: str, salt: bytes) -> str:
     """
     Derives a key from the password and salt using PBKDF2.
     """
@@ -64,7 +59,7 @@ def get_secret_key(password, salt):
         iterations=ITERATION_COUNT,
         backend=default_backend(),
     )
-    return kdf.derive(password.encode())
+    return base64.b64encode(kdf.derive(password.encode())).decode()
 
 
 def get_hashed_key_and_salt(password: str) -> tuple:
@@ -72,14 +67,15 @@ def get_hashed_key_and_salt(password: str) -> tuple:
     Returns the key with generated salt using PBKDF2.
     """
     salt = os.urandom(SALT_LENGTH)
-    hashed_key = base64.b64encode(get_secret_key(password, salt)).decode()
+    hashed_key = get_secret_key(password, salt)
 
     return hashed_key, base64.b64encode(salt).decode()
 
 
 def main():
     outputFormat = "{:<25}:{}"
-    secret_key = "your_secure_key"
+    secret_key, salt = get_hashed_key_and_salt("your_secure_key")
+    secret_key = base64.b64decode(secret_key)
     plain_text = "Your_plain_text"
 
     print("------ AES-GCM Encryption ------")
