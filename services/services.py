@@ -74,7 +74,6 @@ def get_credential(user_id: int, key: str, vault_key: bytes) -> dict:
     session = SessionLocal()
 
     try:
-        # Query for username
         user = session.query(User).filter_by(id=user_id).first()
         if not user:
             raise ValueError("User not Found")
@@ -99,7 +98,6 @@ def get_user_by_id(user_id: int) -> User:
     session = SessionLocal()
 
     try:
-        # Query for username
         user = session.query(User).filter_by(id=user_id).first()
         return user
     except Exception as e:
@@ -185,6 +183,9 @@ def delete_key(user_id: int, key: str):
 
 
 def main():
+    """
+    Test implementation
+    """
     # user = create_user("test_person", "mypass")
     user, vault_key = login("test_person", "mypass")
 
