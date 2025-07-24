@@ -48,7 +48,7 @@ def decrypt(encryption_key, encoded_cipher):
     return decrypted.decode("utf-8")
 
 
-def get_secret_key(password: str, salt: bytes) -> str:
+def derive_key(password: str, salt: bytes) -> bytes:
     """
     Derives a key from the password and salt using PBKDF2.
     """
@@ -59,23 +59,19 @@ def get_secret_key(password: str, salt: bytes) -> str:
         iterations=ITERATION_COUNT,
         backend=default_backend(),
     )
-    return base64.b64encode(kdf.derive(password.encode())).decode()
+    return kdf.derive(password.encode())
 
 
-def get_hashed_key_and_salt(password: str) -> tuple:
+def generate_salt() -> bytes:
     """
-    Returns the key with generated salt using PBKDF2.
+    Returns a 16byte generated salt.
     """
-    salt = os.urandom(SALT_LENGTH)
-    hashed_key = get_secret_key(password, salt)
-
-    return hashed_key, base64.b64encode(salt).decode()
+    return os.urandom(SALT_LENGTH)
 
 
 def main():
     outputFormat = "{:<25}:{}"
-    secret_key, salt = get_hashed_key_and_salt("your_secure_key")
-    secret_key = base64.b64decode(secret_key)
+    secret_key = derive_key("your_secure_key", generate_salt())
     plain_text = "Your_plain_text"
 
     print("------ AES-GCM Encryption ------")
