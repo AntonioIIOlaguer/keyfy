@@ -1,6 +1,6 @@
-from db import SessionLocal
-from encryption import decrypt, derive_key, encrypt, generate_salt
-from models.models import Credential, User
+from services.db import SessionLocal
+from services.encryption import decrypt, derive_key, encrypt, generate_salt
+from services.models.models import Credential, User
 
 
 def create_user(username: str, password: str):
@@ -34,7 +34,7 @@ def create_user(username: str, password: str):
         session.close()
 
 
-def login(username, password) -> tuple[int, bytes]:
+def login_user(username, password) -> tuple[int, bytes]:
     """
     Authenticates the user, then returns the user_id and encryption_key
     """
@@ -49,7 +49,6 @@ def login(username, password) -> tuple[int, bytes]:
         # Verify password
         auth_salt = user.auth_salt
         password_hash = derive_key(password, auth_salt)
-        print(type(user.auth_salt))
 
         if user.password != password_hash:
             raise ValueError("Try Again Password incorrect.")
@@ -187,7 +186,7 @@ def main():
     Test implementation
     """
     # user = create_user("test_person", "mypass")
-    user, vault_key = login("test_person", "mypass")
+    user, vault_key = login_user("test_person", "mypass")
 
     print(add_credential(1, vault_key, "what", "icy3", "passilyo").password)
 
