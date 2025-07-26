@@ -66,7 +66,7 @@ def login_user(username, password) -> tuple[int, str, bytes]:
         session.close()
 
 
-def get_credential(user_id: int, key: str, vault_key: bytes) -> dict:
+def get_credential(user_id: int, vault_key: bytes, key: str) -> dict:
     """
     Returns a credential based in the key
     """
@@ -77,7 +77,9 @@ def get_credential(user_id: int, key: str, vault_key: bytes) -> dict:
         if not user:
             raise ValueError("User not Found")
 
-        creds = user.vault[key]
+        creds = user.vault.get(key)
+        if not creds:
+            raise ValueError("Key not found in vault")
 
         decrypted_password = decrypt(vault_key, creds.password)
 
@@ -156,7 +158,7 @@ def add_credential(
         session.close()
 
 
-def delete_key(user_id: int, key: str):
+def delete_credentials(user_id: int, key: str):
     """
     Delets a credential via key.
     """
@@ -171,8 +173,6 @@ def delete_key(user_id: int, key: str):
         if key in vault:
             del vault[key]
             session.commit()
-
-        return
 
     except Exception as e:
         session.rollback()
