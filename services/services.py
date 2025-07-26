@@ -34,7 +34,7 @@ def create_user(username: str, password: str):
         session.close()
 
 
-def login_user(username, password) -> tuple[int, bytes]:
+def login_user(username, password) -> tuple[int, str, bytes]:
     """
     Authenticates the user, then returns the user_id and encryption_key
     """
@@ -57,7 +57,7 @@ def login_user(username, password) -> tuple[int, bytes]:
         vault_salt = user.vault_salt
         encryption_key = derive_key("mypass", vault_salt)
 
-        return user.id, encryption_key
+        return user.id, user.username, encryption_key
 
     except Exception as e:
         session.rollback()
