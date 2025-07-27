@@ -14,7 +14,7 @@ KEY_LENGTH = 32
 SALT_LENGTH = 16
 
 
-def encrypt(encryption_key, password):
+def encrypt(encryption_key: bytes, password: str) -> dict:
     """
     Encrypts a message using AES-GCM and PBKDF2.
     Returns a base64-encoded byte string of: salt + iv + ciphertext.
@@ -32,7 +32,7 @@ def encrypt(encryption_key, password):
     }
 
 
-def decrypt(encryption_key, encoded_cipher):
+def decrypt(encryption_key: bytes, encoded_cipher: dict) -> str:
     """
     Decrypts a base64-encoded AES-GCM cipher using the given password.
     """
@@ -70,20 +70,7 @@ def generate_salt() -> bytes:
 
 
 def main():
-    outputFormat = "{:<25}:{}"
-    secret_key = derive_key("your_secure_key", generate_salt())
-    plain_text = "Your_plain_text"
-
-    print("------ AES-GCM Encryption ------")
-    cipher_text = encrypt(secret_key, plain_text)
-    print(outputFormat.format("encryption input", plain_text))
-    print(outputFormat.format("encryption output", cipher_text))
-
-    decrypted_text = decrypt(secret_key, cipher_text)
-
-    print("\n------ AES-GCM Decryption ------")
-    print(outputFormat.format("decryption input", cipher_text))
-    print(outputFormat.format("decryption output", decrypted_text))
+    pass
 
 
 # Test the implementation

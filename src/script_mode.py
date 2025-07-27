@@ -1,7 +1,5 @@
 import click
 
-from src.services.db import SessionLocal
-from src.services.encryption import decrypt
 from src.services.services import (
     add_credential,
     create_user,
@@ -72,7 +70,7 @@ def store(username, password, service_key, service_username, service_password):
         add_credential(
             user_id, encryption_key, service_key, service_username, service_password
         )
-        click.echo(f"Saved credentials for '{service_key}'")
+        click.echo(f"Successfully  saved credentials for '{service_key}'!")
     except Exception as e:
         click.echo(e)
 

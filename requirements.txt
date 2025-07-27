@@ -1,0 +1,16 @@
+astroid==3.3.11
+cffi==1.17.1
+click==8.2.1
+cryptography==45.0.5
+dill==0.4.0
+isort==6.0.1
+mccabe==0.7.0
+platformdirs==4.3.8
+prompt_toolkit==3.0.51
+pycparser==2.22
+pylint==3.3.7
+questionary==2.1.0
+SQLAlchemy==2.0.41
+tomlkit==0.13.3
+typing_extensions==4.14.1
+wcwidth==0.2.13
