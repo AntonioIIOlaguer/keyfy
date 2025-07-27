@@ -1,6 +1,6 @@
-from services.db import SessionLocal
-from services.encryption import decrypt, derive_key, encrypt, generate_salt
-from services.models.models import Credential, User
+from src.services.db import SessionLocal
+from src.services.encryption import decrypt, derive_key, encrypt, generate_salt
+from src.services.models.models import Credential, User
 
 
 def create_user(username: str, password: str):
@@ -101,6 +101,22 @@ def get_user_by_id(user_id: int) -> User:
     try:
         user = session.query(User).filter_by(id=user_id).first()
         return user
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
+
+
+def is_username_available(username: str) -> bool:
+    """
+    Checks the availability of the username.
+    """
+    session = SessionLocal()
+
+    try:
+        user = session.query(User).filter_by(username=username).first()
+        return not bool(user)
     except Exception as e:
         session.rollback()
         raise e
