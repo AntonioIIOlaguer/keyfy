@@ -13,7 +13,7 @@ from src.services.services import (
 
 @click.group()
 def cli():
-    """Password Manager CLI (Script Mode)"""
+    """Keyfy Password Manager CLI (Script Mode)"""
     pass
 
 
