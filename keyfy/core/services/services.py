@@ -1,6 +1,6 @@
-from src.services.db import SessionLocal
-from src.services.encryption import decrypt, derive_key, encrypt, generate_salt
-from src.services.models.models import Credential, User
+from keyfy.core.services.db import SessionLocal
+from keyfy.core.services.encryption import decrypt, derive_key, encrypt, generate_salt
+from keyfy.core.services.models.models import Credential, User
 
 
 def create_user(username: str, password: str):

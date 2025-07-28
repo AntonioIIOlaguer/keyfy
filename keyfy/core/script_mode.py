@@ -1,6 +1,7 @@
 import click
 
-from src.services.services import (
+from keyfy.core.interactive_mode import landing_page
+from keyfy.core.services.services import (
     add_credential,
     create_user,
     delete_credentials,
@@ -15,6 +16,12 @@ from src.services.services import (
 def cli():
     """Keyfy Password Manager CLI (Script Mode)"""
     pass
+
+
+@cli.command()
+def interactive():
+    """Launch interactive mode"""
+    landing_page()
 
 
 @cli.command()

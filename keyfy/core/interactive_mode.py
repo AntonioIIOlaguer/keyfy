@@ -4,8 +4,8 @@ import time
 
 import questionary
 
-from src.assets.banner import KEYFY_ASCII
-from src.services.services import (
+from keyfy.core.assets.banner import KEYFY_ASCII
+from keyfy.core.services.services import (
     add_credential,
     create_user,
     delete_credentials,
