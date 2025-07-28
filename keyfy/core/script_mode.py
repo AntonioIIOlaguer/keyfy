@@ -54,7 +54,7 @@ def all_keys(username, password):
 @click.argument("username")
 @click.argument("password")
 @click.argument("service_key")
-def retrieve(username, password, service_key):
+def get(username, password, service_key):
     """Retrieve credentials using a key"""
     try:
         user_id, _, encryption_key = login_user(username, password)
