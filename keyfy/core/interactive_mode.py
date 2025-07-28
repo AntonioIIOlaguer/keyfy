@@ -55,7 +55,7 @@ def register_view():
     print(KEYFY_ASCII)
     print("Welcome to Keyfy! Your Personal password manager.")
     print("Store your credentials safely and gain access to it whenever you want.\n")
-    print("Register your account!\n")
+    print("Register below! Please Choose a strong password.\n")
     # ---------------------------------#
 
     # Ensure username uniqueness
