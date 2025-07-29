@@ -55,7 +55,7 @@ def login_user(username, password) -> tuple[int, str, bytes]:
 
         # Authenticated user. Provide encryption key
         vault_salt = user.vault_salt
-        encryption_key = derive_key("mypass", vault_salt)
+        encryption_key = derive_key(password, vault_salt)
 
         return user.id, user.username, encryption_key
 
