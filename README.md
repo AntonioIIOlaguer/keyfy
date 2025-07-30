@@ -86,6 +86,8 @@ keyfy store myUsername myPassword key
 
 ## Author
 
-Antonio E. Olaguer II \n
-Github: [AntonioIIOlaguer](https://github.com/AntonioIIOlaguer) \n
+Antonio E. Olaguer II 
+
+Github: [AntonioIIOlaguer](https://github.com/AntonioIIOlaguer)
+
 Email: antonio.olaguer.ii@gmail.com
