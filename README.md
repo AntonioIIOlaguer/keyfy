@@ -74,12 +74,12 @@ keyfy store --help
 
 **Example commands:**
 
-Saving of key
+Storing a key
 ```zsh
 keyfy store myUsername myPassword key serviceUsername servicePassword
 ```
 
-Retrieving the key
+Retrieving a key
 ```zsh
 keyfy store myUsername myPassword key
 ```
