@@ -11,7 +11,7 @@
 -----------------------------------------------------
 ```
 
-Keyfy is a simple CLI password manager. Utilizes AES-GCM for password encryption coupled with PBKDF2 encryption key derivation from the master password. with both interactive mode and scripting capabilities. 
+Keyfy is a simple CLI password manager. Utilizes AES-GCM for password encryption coupled with PBKDF2 encryption key derivation from the master password.
 
 
 ## Features
