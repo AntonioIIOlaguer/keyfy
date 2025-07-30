@@ -19,11 +19,13 @@ Keyfy is a simple CLI password manager. Utilizes AES-GCM for password encryption
 - AES-GCM encryption with PBKDF2 derivation from the master password.
 - Interactive and scripting mode.
 ## Installation
+> This setup process defines a console script entry point for keyfy
+
 1. Clone the repository
 2. Navigate to the root directory
 3. Either install it inside the local or global virtual environment.
 
-### Locally:
+### Locally
 1. Activate the virtual environment
 ```zsh
 source .venv/bin/actiavte
@@ -41,10 +43,7 @@ Make sure `pipx` is installed. If you are using macOS and have brew installed yo
 pipx install .
 ```
 
-
-> This setup process defines a console script entry point for keyfy
-
-> [!NOTE] DB location.
+> **DB location.**
 > - **macOS** `/Users/yourname/Library/Application Support/keyfy`
 > - **Linux** `/home/yourname/.local/share/keyfy`
 > - **Windows** `C:\Users\yourname\AppData\Local\keyfy`
