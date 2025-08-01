@@ -49,7 +49,7 @@ pipx install .
 > - **Windows** `C:\Users\yourname\AppData\Local\keyfy`
 
 ## Usage
-There are two ways to interactive with the application
+There are two ways to interact with the application
 
 ### Interactive mode
 Run this command in your terminal.
