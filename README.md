@@ -60,7 +60,7 @@ keyfy interactive
 ### Scripting
 Most commands are required to be authenticated therefore the username and password will always be required for each call.
 
-It follows with this format.
+It follows this format.
 ```zsh
 keyfy [OPTIONS] COMMAND [ARGS]...
 ```
