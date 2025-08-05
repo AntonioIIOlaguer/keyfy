@@ -1,4 +1,6 @@
-from sqlalchemy import JSON, Column, ForeignKey, Integer, LargeBinary, String
+import uuid
+
+from sqlalchemy import JSON, ForeignKey, LargeBinary, String
 from sqlalchemy.orm import (
     Mapped,
     attribute_mapped_collection,
@@ -18,7 +20,9 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[bytes] = mapped_column(
         LargeBinary, nullable=False
