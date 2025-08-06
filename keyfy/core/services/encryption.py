@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import os
 
 from cryptography.hazmat.backends import default_backend
@@ -67,6 +68,13 @@ def generate_salt() -> bytes:
     Returns a 16byte generated salt.
     """
     return os.urandom(SALT_LENGTH)
+
+
+def hash_sha1(password) -> str:
+    """
+    Used for password microservice checker.
+    """
+    return hashlib.sha1(password.encode("utf-8")).hexdigest().upper()
 
 
 def main():
