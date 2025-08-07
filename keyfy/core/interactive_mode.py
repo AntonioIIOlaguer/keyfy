@@ -5,6 +5,7 @@ import time
 import questionary
 
 from keyfy.core.assets.banner import KEYFY_ASCII
+from keyfy.core.integrations.password_generator_service import generate_password
 from keyfy.core.services.services import (
     add_credential,
     create_user,
@@ -14,6 +15,7 @@ from keyfy.core.services.services import (
     is_username_available,
     login_user,
 )
+from keyfy.core.utils.utils import is_filled, is_int_and_within_bounds
 
 session = {}
 
@@ -152,6 +154,7 @@ def main_menu():
             "🔎 Retrieve by key",
             "📜 Show all keys",
             "❌ Delete a key",
+            "🧬 Generate Password",
             "🆘 Help",
             "Exit app",
         ],
@@ -174,6 +177,8 @@ def handle_main_menu_choice(choice):
         delete_key_view()
     elif choice == "🆘 Help":
         help_view()
+    elif choice == "🧬 Generate Password":
+        generate_password_view()
     elif choice == "Exit app":
         exit_app()
     else:
@@ -200,9 +205,18 @@ def store_key_view():
     print(KEYFY_ASCII)
     print("Save your credentials here! \n")
 
-    key = questionary.text("Enter key name:").ask()
-    username = questionary.text("Username:").ask()
-    password = questionary.password("Password:").ask()
+    key = questionary.text("Enter key name: ", validate=is_filled).ask()
+    username = questionary.text("Username: ", validate=is_filled).ask()
+
+    # Prompt for Personal vs generated password.
+    pass_choice = questionary.select(
+        "Password choice: ", choices=["Generated password", "Personal Password"]
+    ).ask()
+
+    if pass_choice == "Generated password":
+        password = generate_password_prompt()
+    else:
+        password = questionary.password("Password:").ask()
 
     try:
         user_id = session.get("user_id")
@@ -213,7 +227,13 @@ def store_key_view():
 
         add_credential(user_id, vault_key, key, username, password)
         print("Key Saved")
-        time.sleep(1)
+
+        # Reprompt if requested
+        confirm = questionary.confirm("Save another key? ").ask()
+        if confirm:
+            store_key_view()
+        main_menu()
+
     except Exception as e:
         print(e)
         print("Please try again.")
@@ -323,9 +343,62 @@ def help_view():
     print("Retrieve by key - Return the user's credentials based on the key.")
     print("Delete a key - Deletes all credentials associated by with the key")
     print("Show all keys - Shows all keys stored by the user.")
+    print("Generates a random password")
 
     questionary.confirm("Back to menu?").ask()
     main_menu()
+
+
+def generate_password_view():
+    """
+    Displays a generated password
+    """
+    clear_screen()
+    print(KEYFY_ASCII)
+
+    generate_password_prompt()
+
+    if questionary.confirm("Generate a new one?").ask():
+        generate_password_view()
+
+    main_menu()
+
+
+def generate_password_prompt():
+    """
+    Prompt sequence for generating a password.
+    """
+    LENGTH_BOUNDS = {
+        "PIN": (4, 6),
+        "Medium": (6, 12),
+        "Strong": (8, 20),
+        "Custom": (1, 64),
+    }
+
+    pass_type = questionary.select(
+        "Choose type: ",
+        choices=["PIN", "Medium", "Strong", "Custom"],
+    ).ask()
+
+    lower_bound, upper_bound = LENGTH_BOUNDS[pass_type]
+    length = int(
+        questionary.text(
+            f"Please enter a desired length between {lower_bound}-{upper_bound} : ",
+            validate=lambda val: is_int_and_within_bounds(
+                val, lower_bound, upper_bound
+            ),
+        ).ask()
+    )
+
+    symbols = False
+    if pass_type in ("Strong", "Custom"):
+        symbols = questionary.confirm(
+            "Would you like symbols included in the password?"
+        ).ask()
+
+    generated_password = generate_password(pass_type, length, symbols)
+    print(generated_password)
+    return generated_password
 
 
 def handle_credential_choice(choice):

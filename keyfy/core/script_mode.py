@@ -1,5 +1,6 @@
 import click
 
+from keyfy.core.integrations.password_generator_service import generate_password
 from keyfy.core.interactive_mode import landing_page
 from keyfy.core.services.services import (
     add_credential,
@@ -78,6 +79,83 @@ def store(username, password, service_key, service_username, service_password):
             user_id, encryption_key, service_key, service_username, service_password
         )
         click.echo(f"Successfully  saved credentials for '{service_key}'!")
+    except Exception as e:
+        click.echo(e)
+
+
+@cli.command()
+@click.argument("username")
+@click.argument("password")
+@click.argument("service_key")
+@click.argument("service_username")
+@click.option(
+    "--strength",
+    type=click.Choice(["PIN", "Custom", "Medium", "Strong"], case_sensitive=False),
+    default="Strong",
+    help="Password strength type",
+)
+@click.option(
+    "--length",
+    type=int,
+    default=None,
+    help="Length of the password",
+)
+@click.option(
+    "--symbols",
+    type=bool,
+    default=False,
+    help="Presence of symbols",
+)
+def store_gen_pass(
+    username, password, service_key, service_username, strength, length, symbols
+):
+    """Store credentials with a generated password"""
+    try:
+        user_id, _, encryption_key = login_user(username, password)
+
+        generated_password = generate_password(strength, length, symbols)
+        click.echo(f"Generated Password: {generated_password}")
+
+        add_credential(
+            user_id, encryption_key, service_key, service_username, generated_password
+        )
+
+        click.echo(f"Successfully  saved credentials for '{service_key}'!")
+    except Exception as e:
+        click.echo(e)
+
+
+@cli.command()
+@click.option(
+    "--strength",
+    type=click.Choice(["PIN", "Custom", "Medium", "Strong"], case_sensitive=False),
+    default="Strong",
+    help="Password strength type",
+)
+@click.option(
+    "--length",
+    type=int,
+    default=None,
+    help="Length of the password",
+)
+@click.option(
+    "--symbols",
+    type=bool,
+    default=False,
+    help="Presence of symbols",
+)
+def gen_pass(strength: str, length: int | None, symbols: bool):
+    """
+    Generate password:
+
+    Strength: str -> PIN, Medium, Strong, Custom
+    length: int <Optional> -> PIN(4-6), Medium(6-12), Strong(8-20), Custom(1-64)
+    symbols: Bool -> True or False
+    """
+
+    try:
+        generated_password = generate_password(strength, length, symbols)
+        click.echo(generated_password)
     except Exception as e:
         click.echo(e)
 
