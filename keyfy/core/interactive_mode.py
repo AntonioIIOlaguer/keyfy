@@ -5,6 +5,7 @@ import time
 import questionary
 
 from keyfy.core.assets.banner import KEYFY_ASCII
+from keyfy.core.integrations.logger_service import retrieve_user_log
 from keyfy.core.integrations.password_generator_service import generate_password
 from keyfy.core.services.services import (
     add_credential,
@@ -14,6 +15,7 @@ from keyfy.core.services.services import (
     get_vault_keys,
     is_username_available,
     login_user,
+    show_pretty_logs,
 )
 from keyfy.core.utils.utils import is_filled, is_int_and_within_bounds
 
@@ -155,6 +157,7 @@ def main_menu():
             "📜 Show all keys",
             "❌ Delete a key",
             "🧬 Generate Password",
+            "🧾 Show Activity logs",
             "🆘 Help",
             "Exit app",
         ],
@@ -175,10 +178,12 @@ def handle_main_menu_choice(choice):
         show_all_keys_view()
     elif choice == "❌ Delete a key":
         delete_key_view()
-    elif choice == "🆘 Help":
-        help_view()
     elif choice == "🧬 Generate Password":
         generate_password_view()
+    elif choice == "🧾 Show Activity logs":
+        activity_logs_view()
+    elif choice == "🆘 Help":
+        help_view()
     elif choice == "Exit app":
         exit_app()
     else:
@@ -328,6 +333,19 @@ def show_all_keys_view():
         print(e)
         print("Please try again.")
         time.sleep(1)
+
+
+def activity_logs_view():
+    """
+    Displays the features of the application and how to interact with it.
+    """
+    clear_screen()
+    print(KEYFY_ASCII)
+
+    show_pretty_logs(retrieve_user_log(session["user_id"]))
+
+    questionary.confirm("Back to menu?").ask()
+    main_menu()
 
 
 def help_view():

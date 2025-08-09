@@ -1,0 +1,2 @@
+class PortMissingError(Exception):
+    pass

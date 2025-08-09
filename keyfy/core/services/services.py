@@ -1,3 +1,7 @@
+from rich.console import Console
+from rich.table import Table
+
+from keyfy.core.integrations.logger_service import log_activity
 from keyfy.core.services.db import SessionLocal
 from keyfy.core.services.encryption import decrypt, derive_key, encrypt, generate_salt
 from keyfy.core.services.models.models import Credential, User
@@ -26,6 +30,8 @@ def create_user(username: str, password: str):
         session.add(user)
         session.commit()
         session.refresh(user)
+        log_activity(user.id, "Register", "Created Account")
+
         return user
     except Exception as e:
         session.rollback()
@@ -51,12 +57,16 @@ def login_user(username, password) -> tuple[int, str, bytes]:
         password_hash = derive_key(password, auth_salt)
 
         if user.password != password_hash:
+            log_activity(
+                user.id, "Login", "Unsuccessful login attempt. Password Inorrect"
+            )
             raise ValueError("Try Again Password incorrect.")
 
         # Authenticated user. Provide encryption key
         vault_salt = user.vault_salt
         encryption_key = derive_key(password, vault_salt)
 
+        log_activity(user.id, "Login", "Succesffully logged in.")
         return user.id, user.username, encryption_key
 
     except Exception as e:
@@ -79,10 +89,18 @@ def get_credential(user_id: int, vault_key: bytes, service_key: str) -> dict:
 
         creds = user.vault.get(service_key)
         if not creds:
+            log_activity(
+                user.id,
+                "Retrieve-key",
+                f"Attempted to retrieve key={service_key}. Does not exist.",
+            )
             raise ValueError("Key not found in vault")
 
         decrypted_password = decrypt(vault_key, creds.password)
 
+        log_activity(
+            user.id, "Retrieve-key", f"Retrieved credentials for {service_key} key"
+        )
         return {"username": creds.username, "password": decrypted_password}
 
     except Exception as e:
@@ -199,6 +217,26 @@ def delete_credentials(user_id: int, service_key: str):
         raise e
     finally:
         session.close()
+
+
+def show_pretty_logs(logs):
+    """
+    A table display for logs from the logger service.
+    """
+    table = Table(title="Activity Logs")
+    table.add_column("Time", style="Green")
+    table.add_column("Action", style="yellow")
+    table.add_column("Message", style="yellow")
+
+    for log in logs:
+        time = log.get("timestamp")
+        action = log.get("action")
+        message = log.get("message")
+
+        table.add_row(time, action, message)
+
+    console = Console()
+    console.print(table)
 
 
 def main():

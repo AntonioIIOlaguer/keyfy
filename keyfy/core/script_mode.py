@@ -1,5 +1,6 @@
 import click
 
+from keyfy.core.integrations.logger_service import retrieve_user_log
 from keyfy.core.integrations.password_generator_service import generate_password
 from keyfy.core.interactive_mode import landing_page
 from keyfy.core.services.services import (
@@ -166,10 +167,23 @@ def gen_pass(strength: str, length: int | None, symbols: bool):
 @click.argument("service_key")
 def remove(username, password, service_key):
     """Remove credentials for a service"""
+
     try:
         user_id, _, encryption_key = login_user(username, password)
         delete_credentials(user_id, service_key)
         click.echo(f"Deleted credentials for '{service_key}'")
+    except Exception as e:
+        click.echo(e)
+
+
+@cli.command()
+@click.argument("username")
+def show_logs(username):
+    """Shows activity log of user"""
+
+    try:
+        user_id, _, encryption_key = login_user(username, password)
+        click.echo(retrieve_user_log(user_id))
     except Exception as e:
         click.echo(e)
 
