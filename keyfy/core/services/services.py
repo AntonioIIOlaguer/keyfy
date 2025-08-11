@@ -92,7 +92,7 @@ def get_credential(user_id: int, vault_key: bytes, service_key: str) -> dict:
             log_activity(
                 user.id,
                 "Retrieve-key",
-                f"Attempted to retrieve key={service_key}. Does not exist.",
+                f"Attempted to retrieve {service_key} key. Does not exist.",
             )
             raise ValueError("Key not found in vault")
 
@@ -154,6 +154,7 @@ def get_vault_keys(user_id: int) -> list:
         if not user:
             raise ValueError("User not Found")
 
+        log_activity(user.id, "Retrieve-all-keys", "Retrieved all vault keys")
         return list(user.vault.keys())
     except Exception as e:
         session.rollback()
@@ -187,6 +188,8 @@ def add_credential(
         user.vault[service_key] = cred
         session.commit()
         session.refresh(cred)
+
+        log_activity(user.id, "Save-key", f"Saved credentials for {service_key} key.")
         return cred
 
     except Exception as e:
@@ -211,6 +214,9 @@ def delete_credentials(user_id: int, service_key: str):
         if service_key in vault:
             del vault[service_key]
             session.commit()
+            log_activity(
+                user.id, "Delete-key", f"Deleted credentials for {service_key} key."
+            )
 
     except Exception as e:
         session.rollback()

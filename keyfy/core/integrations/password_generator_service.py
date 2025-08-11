@@ -29,6 +29,7 @@ def generate_password(
         generated_password = data.get("password")
         if not generated_password:
             raise ValueError("detail", "Password not found in service response.")
+
         return generated_password
 
     except PortMissingError:

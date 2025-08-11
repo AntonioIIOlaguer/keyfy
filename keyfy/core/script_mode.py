@@ -1,3 +1,5 @@
+import json
+
 import click
 
 from keyfy.core.integrations.logger_service import retrieve_user_log
@@ -11,7 +13,9 @@ from keyfy.core.services.services import (
     get_vault_keys,
     is_username_available,
     login_user,
+    show_pretty_logs,
 )
+from keyfy.core.utils.utils import display_pass_evaluation, is_breached, score_password
 
 
 @click.group()
@@ -53,9 +57,9 @@ def all_keys(username, password):
 
 
 @cli.command()
+@click.argument("service_key")
 @click.argument("username")
 @click.argument("password")
-@click.argument("service_key")
 def get(username, password, service_key):
     """Retrieve credentials using a key"""
     try:
@@ -67,11 +71,11 @@ def get(username, password, service_key):
 
 
 @cli.command()
-@click.argument("username")
-@click.argument("password")
 @click.argument("service_key")
 @click.argument("service_username")
 @click.argument("service_password")
+@click.argument("username")
+@click.argument("password")
 def store(username, password, service_key, service_username, service_password):
     """Store new credentials"""
     try:
@@ -85,10 +89,10 @@ def store(username, password, service_key, service_username, service_password):
 
 
 @cli.command()
-@click.argument("username")
-@click.argument("password")
 @click.argument("service_key")
 @click.argument("service_username")
+@click.argument("username")
+@click.argument("password")
 @click.option(
     "--strength",
     type=click.Choice(["PIN", "Custom", "Medium", "Strong"], case_sensitive=False),
@@ -162,9 +166,9 @@ def gen_pass(strength: str, length: int | None, symbols: bool):
 
 
 @cli.command()
+@click.argument("service_key")
 @click.argument("username")
 @click.argument("password")
-@click.argument("service_key")
 def remove(username, password, service_key):
     """Remove credentials for a service"""
 
@@ -177,13 +181,33 @@ def remove(username, password, service_key):
 
 
 @cli.command()
+@click.option("--prettify", is_flag=True, help="Display logs in a table.")
 @click.argument("username")
-def show_logs(username):
+@click.argument("password")
+def show_logs(username, password, prettify):
     """Shows activity log of user"""
 
     try:
         user_id, _, encryption_key = login_user(username, password)
-        click.echo(retrieve_user_log(user_id))
+        data = retrieve_user_log(user_id)
+
+        if prettify:
+            click.echo(show_pretty_logs(data))
+        else:
+            click.echo(json.dumps(data))
+    except Exception as e:
+        click.echo(e)
+
+
+@cli.command(name="eval-pass")
+@click.argument("password")
+def evaluate_password(password):
+    """Evaluates the user password"""
+
+    try:
+        breached, appearances = is_breached(password)
+        strength, feedback = score_password(password)
+        display_pass_evaluation(breached, appearances, strength, feedback)
     except Exception as e:
         click.echo(e)
 

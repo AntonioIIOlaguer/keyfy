@@ -5,6 +5,7 @@ import time
 import questionary
 
 from keyfy.core.assets.banner import KEYFY_ASCII
+from keyfy.core.integrations.breached_checker_service import check_breached_password
 from keyfy.core.integrations.logger_service import retrieve_user_log
 from keyfy.core.integrations.password_generator_service import generate_password
 from keyfy.core.services.services import (
@@ -17,7 +18,13 @@ from keyfy.core.services.services import (
     login_user,
     show_pretty_logs,
 )
-from keyfy.core.utils.utils import is_filled, is_int_and_within_bounds
+from keyfy.core.utils.utils import (
+    display_pass_evaluation,
+    is_breached,
+    is_filled,
+    is_int_and_within_bounds,
+    score_password,
+)
 
 session = {}
 
@@ -40,14 +47,16 @@ def landing_page():
     print("Store your credentials safely and gain access to it whenever you want.\n")
     # ----------------------------------#
 
-    choice = questionary.select("Select option:", choices=["Login", "Register"]).ask()
+    choice = questionary.select(
+        "Select option:", choices=["Login", "Register", "Exit"]
+    ).ask()
 
     if choice == "Login":
         login_view()
     elif choice == "Register":
         register_view()
     else:
-        landing_page()
+        exit_app()
 
 
 def register_view():
@@ -82,9 +91,8 @@ def register_view():
         landing_page()
 
     # Master password registration
-    password = questionary.password("Enter a master password: ").ask()
+    password = password_prompt("Enter user master password: ")
     confirm_password = questionary.password("Confirm the master password: ").ask()
-
     if password != confirm_password:
         print("Failed password confirmation.")
 
@@ -107,6 +115,29 @@ def register_view():
         if choice == "Try again":
             register_view()
         landing_page()
+
+
+def password_prompt(prompt: str) -> str:
+    """
+    Takes a prompt message then returns a user input password.
+    Ensures password strength and hasn't been found in any breaches.
+    """
+    while True:
+        password = questionary.password(prompt).ask()
+        breached, appearances = is_breached(password)
+        strength, feedback = score_password(password)
+        proceed = True
+
+        if breached or feedback:
+            display_pass_evaluation(breached, appearances, strength, feedback)
+            proceed = questionary.confirm(
+                "Do you want to continue with this password?"
+            ).ask()
+
+        if not (breached or feedback) or proceed:
+            break
+
+    return password
 
 
 def login_view():
@@ -158,6 +189,7 @@ def main_menu():
             "❌ Delete a key",
             "🧬 Generate Password",
             "🧾 Show Activity logs",
+            "🕵️‍♀️ Evaluate Password",
             "🆘 Help",
             "Exit app",
         ],
@@ -182,6 +214,8 @@ def handle_main_menu_choice(choice):
         generate_password_view()
     elif choice == "🧾 Show Activity logs":
         activity_logs_view()
+    elif choice == "🕵️‍♀️ Evaluate Password":
+        evaluate_pass_view()
     elif choice == "🆘 Help":
         help_view()
     elif choice == "Exit app":
@@ -221,7 +255,7 @@ def store_key_view():
     if pass_choice == "Generated password":
         password = generate_password_prompt()
     else:
-        password = questionary.password("Password:").ask()
+        password = password_prompt("Enter key password: ")
 
     try:
         user_id = session.get("user_id")
@@ -361,7 +395,11 @@ def help_view():
     print("Retrieve by key - Return the user's credentials based on the key.")
     print("Delete a key - Deletes all credentials associated by with the key")
     print("Show all keys - Shows all keys stored by the user.")
-    print("Generates a random password")
+    print("Generate Password - Generates a random password")
+    print("Show Activity Logs - Shows an audit of user activity in the vault.")
+    print(
+        "Password Breach scan - Securely scans if the password showed up in any of the previous breaches recorded in HIBP database"
+    )
 
     questionary.confirm("Back to menu?").ask()
     main_menu()
@@ -494,6 +532,26 @@ def delete_key(key: str) -> bool:
 
     except Exception as e:
         raise e
+
+
+def evaluate_pass_view():
+    """
+    Prompts the user to provide a password and displays how secure the passwrod is.
+    """
+    clear_screen()
+    print(KEYFY_ASCII)
+
+    password = questionary.password("Enter password to scan: ").ask()
+    breached, appearances = is_breached(password)
+    strength, feedback = score_password(password)
+
+    display_pass_evaluation(breached, appearances, strength, feedback)
+
+    again = questionary.confirm("Scan another password?").ask()
+    if again:
+        evaluate_pass_view()
+    else:
+        main_menu()
 
 
 def exit_app():

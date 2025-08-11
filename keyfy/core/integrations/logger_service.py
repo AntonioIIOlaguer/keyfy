@@ -41,6 +41,9 @@ def retrieve_user_log(user_id: int) -> list:
         response = requests.get(f"{config.ACTIVITY_LOGGER_URL}/{user_id}", timeout=5)
         response.raise_for_status()
 
+        log_activity(
+            user_id, "Retrieve Activity Log", "Retrieve activity logs of user."
+        )
         return response.json()
     except PortMissingError:
         print("Error: Port is missing for the logger service.")
