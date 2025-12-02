@@ -91,3 +91,7 @@ Antonio E. Olaguer II
 Github: [AntonioIIOlaguer](https://github.com/AntonioIIOlaguer)
 
 Email: antonio.olaguer.ii@gmail.com
+
+## License
+
+This project is released under the MIT License – see the LICENSE￼ file for details.
